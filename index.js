@@ -20,7 +20,6 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.mdnalzr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -139,6 +138,38 @@ async function run() {
         });
 
 
+        // ------------->
+
+        // TOTAL groups
+        app.get('/articles/count', async (req, res) => {
+            try {
+                const total = await articlesCollection.estimatedDocumentCount();
+                res.json({ count: total });
+            } catch (e) {
+                res.status(500).json({ message: e.message });
+            }
+        });
+
+        // LOGGED-IN user’s groups
+        app.get('/myarticles/count', async (req, res) => {
+            const email = req.query.email;
+            if (!email) return res.status(400).json({ message: 'email required' });
+
+            try {
+                const myCount = await articlesCollection.countDocuments({
+                    author_email: email
+                });
+                res.json({ count: myCount });
+            } catch (e) {
+                res.status(500).json({ message: e.message });
+            }
+        });
+
+
+
+        // ---------->
+
+
         //handle like toggle
 
         app.patch('/like/:articleId', async (req, res) => {
@@ -192,7 +223,7 @@ async function run() {
         // DELETE group by ID------->
 
 
-        app.delete("/deletearticle/:id", async (req, res) => {
+        app.delete("/deletearticle/:id", verifyJWT, async (req, res) => {
             const id = req.params.id;
             const result = await articlesCollection.deleteOne({ _id: new ObjectId(id) });
             res.send(result);
@@ -218,7 +249,7 @@ async function run() {
         // });
 
 
-        app.put('/updatearticle', async (req, res) => {
+        app.put('/updatearticle', verifyJWT, async (req, res) => {
             try {
                 const { articleId, ...updatedFields } = req.body;
 
@@ -285,7 +316,7 @@ async function run() {
 
         // Send a ping to confirm a successful connection
         //await client.db("admin").command({ ping: 1 });
-       // console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        // console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
         //await client.close();
