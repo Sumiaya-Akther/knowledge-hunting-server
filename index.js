@@ -245,7 +245,7 @@ async function run() {
         // DELETE group by ID------->
 
 
-        app.delete("/deletearticle/:id", verifyJWT, async (req, res) => {
+        app.delete("/deletearticle/:id", async (req, res) => {
             const id = req.params.id;
             const result = await articlesCollection.deleteOne({ _id: new ObjectId(id) });
             res.send(result);
@@ -271,7 +271,7 @@ async function run() {
         // });
 
 
-        app.put('/updatearticle', verifyJWT, async (req, res) => {
+        app.put('/updatearticle', async (req, res) => {
             try {
                 const { articleId, ...updatedFields } = req.body;
 
