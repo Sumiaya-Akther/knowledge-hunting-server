@@ -166,6 +166,28 @@ async function run() {
         });
 
 
+        // backend (Express + MongoDB aggregate)
+        app.get('/top-contributors', async (req, res) => {
+            try {
+                const top = await articlesCollection.aggregate([
+                    {
+                        $group: {
+                            _id: "$author_email",
+                            name: { $first: "$author_name" },
+                            photo: { $first: "$author_photo" },
+                            count: { $sum: 1 }
+                        }
+                    },
+                    { $sort: { count: -1 } },
+                    { $limit: 5 }
+                ]).toArray();
+                res.send(top);
+            } catch (err) {
+                res.status(500).send({ message: "Failed to get top contributors" });
+            }
+        });
+
+
 
         // ---------->
 
