@@ -74,12 +74,12 @@ async function run() {
 
         //all articles get api call
 
-        // app.get('/articles', async (req, res) => {
-        //     //   const cursor = groupsCollection.find();
-        //     //   const result = await cursor.toArray();
-        //     const result = await articlesCollection.find().toArray();
-        //     res.send(result);
-        // });
+        app.get('/allarticles', async (req, res) => {
+            //   const cursor = groupsCollection.find();
+            //   const result = await cursor.toArray();
+            const result = await articlesCollection.find().toArray();
+            res.send(result);
+        });
 
 
         //------------------------------>
